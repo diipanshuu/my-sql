@@ -138,3 +138,4 @@ WHERE l.name = "English"
 GROUP BY f.title, f.release_year, l.name
 HAVING AVG(p.amount) > 3
 ORDER BY average_rental_rate DESC;
+
