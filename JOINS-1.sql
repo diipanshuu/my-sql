@@ -144,3 +144,154 @@ SELECT CONCAT(e.firstName, " ", e.lastName) AS empName, e.jobTitle, CONCAT(m.fir
 FROM employees e
 JOIN employees m
 ON e.reportsTo = m.employeeNumber; 
+
+
+-- Joins continued
+-- SELF AND Compound JOIN
+SELECT *
+FROM 
+	film f1
+JOIN
+	film f2
+ON 
+	f2.release_year 
+    BETWEEN f1.release_year - 2 AND f1.release_year + 2
+AND f1.rental_rate < f2.rental_rate;
+
+USE classicmodels;
+-- INNER JOIN
+		/*
+			An inner join selects records from
+            both tables where there is a match 
+            based on a specified condition, 
+            excluding non-matching rows.
+		*/
+
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	orders o
+JOIN
+	customers c
+ON
+	o.customerNumber = c.customerNumber;
+    
+-- RIGHT OUTER JOIN
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	orders o
+RIGHT JOIN
+	customers c
+ON
+	o.customerNumber = c.customerNumber;
+    
+-- LEFT OUTER JOIN
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	customers c
+LEFT JOIN
+	orders o
+ON
+	o.customerNumber = c.customerNumber;
+    
+-- FULL OUTER JOIN IS NOT SUPPORTED IN MYSQL 
+-- SO USING UNION
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	customers c
+LEFT JOIN
+	orders o
+ON
+	o.customerNumber = c.customerNumber
+    
+UNION
+
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	customers c
+RIGHT JOIN
+	orders o
+ON
+	o.customerNumber = c.customerNumber;
+    
+-- CROSS JOIN
+/* 
+	Every row from the first table
+	is paired with every row from the
+	second table.
+*/
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM 
+	customers c
+CROSS JOIN
+	orders o;
+
+
+-- Implicit JOIN
+SELECT c.customerNumber, c.customerName, o.orderNumber
+FROM customers c, orders o; 
+
+-- UNION
+SELECT customerName AS "Name", phone AS "Number"
+FROM customers
+UNION
+SELECT firstName, extension
+FROM employees;
+
+-- AGGREGATE FUNCTIONS
+-- 1. Calculate the average rental rate for each film category:
+USE sakila;
+
+SELECT fc.category_id, c.name, AVG(rental_rate) AS Category_Avg
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON fc.category_id = c.category_id
+GROUP BY (fc.category_id);
+
+-- 2. Find the minimum rental duration for each film category:
+SELECT fc.category_id, c.name, MIN(rental_rate) AS MIN_RATE
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON fc.category_id = c.category_id
+GROUP BY (fc.category_id);
+
+-- 3. Calculate the total inventory per film category:
+SELECT fc.category_id, c.name, COUNT(i.inventory_id) AS totalInventory
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON fc.category_id = c.category_id
+JOIN inventory i
+ON f.film_id = i.film_id
+GROUP BY (fc.category_id);
+
+-- 4. Find the maximum replacement cost for each film category:
+SELECT fc.category_id, c.name, MAX(f.replacement_cost) AS totalInventory
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON fc.category_id = c.category_id
+GROUP BY (fc.category_id);
+
+-- 5. Count the number of films per category:
+SELECT fc.category_id, c.name, COUNT(f.film_id) AS noOfFilmsInCategory
+FROM film f
+JOIN film_category fc
+ON f.film_id = fc.film_id
+JOIN category c
+ON fc.category_id = c.category_id
+GROUP BY (fc.category_id);
+
+-- 6 Calculate the total sales amount for each product line:
+USE classicmodels;
+SELECT productLine, SUM(quantityOrdered * priceEach) AS TotalAmount
+FROM products p
+JOIN orderdetails od
+ON p.productCode = od.productCode
+GROUP BY (productLine)
+ORDER BY TotalAmount DESC;
